@@ -3,6 +3,8 @@ from tkinter import Canvas, Label
 import random
 import fitz  # PyMuPDF
 from PIL import Image, ImageTk
+import os
+import sys
 
 all_notes = ['F3', 'F#3',
          'Gb3', 'G3', 'G#3', 'Ab3', 'A3', 'A#3', 'Bb3', 'B3','C4', 'C#4', 'Db4', 'D4', 'D#4', 'Eb4', 'E4', 'F4', 'F#4',
@@ -25,6 +27,14 @@ notes_in_octave = [
     ("A#", "Bb"),
     ("B",),
 ]
+
+def resource_path(relative_path):
+    try:
+        base_path = sys._MEIPASS
+    except AttributeError:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
 
 
 # Function to render a PDF page to a Tkinter canvas with a scale factor to fill the canvas
@@ -95,7 +105,7 @@ def show_random_pdf():
     pdf_path = random.choice(pdf_files)
     current_pdf = fitz.open(pdf_path)
 
-    current_answer = pdf_path.split('/')[1].split('.')[0][:-1]
+    current_answer = pdf_path.split('/')[-1].split('.')[0][:-1]
     # Initial render of PDF
     render_pdf(canvas, current_pdf)
 
@@ -142,8 +152,7 @@ feedback_label.pack(pady=5)
 
 
 # List of pre-rendered PDF files (change paths to your PDF files)
-pdf_files = ['pdfs/' + notestr + '.pdf' for notestr in all_notes]
-
+pdf_files = [resource_path(os.path.join("pdfs", notestr + ".pdf")) for notestr in all_notes]
 # Variables to track currently displayed PDF and page
 current_pdf = None
 
