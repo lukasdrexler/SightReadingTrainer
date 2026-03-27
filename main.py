@@ -89,7 +89,7 @@ def on_note_button_clicked(note_name):
 
 # Function to show a random PDF page
 def show_random_pdf():
-    global current_pdf, current_answer, answer_label, answered
+    global current_pdf, current_answer, answered
 
     answered = False
     pdf_path = random.choice(pdf_files)
@@ -100,11 +100,7 @@ def show_random_pdf():
     render_pdf(canvas, current_pdf)
 
     # Reset answer label text
-    answer_label.config(text="")
     feedback_label.config(text="")
-
-    # After 5 seconds, show the answer
-    app.after(5000, show_answer)
 
 # Main application setup
 app = tk.Tk()
@@ -125,7 +121,7 @@ for note_group in notes_in_octave:
             command=lambda n=note: on_note_button_clicked(n)
         )
         b.pack()
-        
+
 # Canvas setup with resizing behavior
 canvas = Canvas(app, bg="white")
 canvas.pack(fill=tk.BOTH, expand=True)
@@ -147,7 +143,6 @@ feedback_label.pack(pady=5)
 
 # List of pre-rendered PDF files (change paths to your PDF files)
 pdf_files = ['pdfs/' + notestr + '.pdf' for notestr in all_notes]
-#pdf_files = ["pdfs/A#4.pdf", "pdfs/Bb4.pdf", "pdfs/C4.pdf"]
 
 # Variables to track currently displayed PDF and page
 current_pdf = None
