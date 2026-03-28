@@ -28,7 +28,13 @@ pip install pyinstaller```
 ### Build
 #### Linux/macOS
 ```bash
-pyinstaller --onedir \ --name sight-reading-trainer \ --add-data "pdfs:pdfs" \ --hidden-import=PIL.ImageTk \ --hidden-import=PIL._tkinter_finder \ --hidden-import=PIL._imagingtk \ main.py
+pyinstaller --onedir \
+--name sight-reading-trainer \
+--add-data "pdfs:pdfs" \
+--hidden-import=PIL.ImageTk \
+--hidden-import=PIL._tkinter_finder \
+--hidden-import=PIL._imagingtk \
+main.py
 ```
 The packaged app will be in 
 ```
