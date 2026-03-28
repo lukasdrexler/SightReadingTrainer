@@ -17,6 +17,7 @@ pip install -r requirements.txt
 ## Run the app
 ```bash
 python main.py
+```
 
 ## Build Executable
 Package the app into an executable so it can run without Python.
