@@ -32,4 +32,5 @@ pyinstaller --onedir \ --name sight-reading-trainer \ --add-data "pdfs:pdfs" \ -
 ```
 The packaged app will be in 
 ```
-dist/sight-reading-trainer/```
+dist/sight-reading-trainer/
+```
