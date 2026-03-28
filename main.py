@@ -98,7 +98,7 @@ def on_note_button_clicked(note_name):
 
 
 # Function to show a random PDF page
-def show_random_pdf():
+def show_random_pdf(event=None):
     global current_pdf, current_answer, answered
 
     answered = False
@@ -115,6 +115,7 @@ def show_random_pdf():
 # Main application setup
 app = tk.Tk()
 app.title("Sight Reading Trainer")
+app.bind_all("<space>",show_random_pdf)
 
 button_frame = tk.Frame(app)
 button_frame.pack(pady=5)
