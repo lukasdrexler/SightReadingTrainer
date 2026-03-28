@@ -24,7 +24,8 @@ Package the app into an executable so it can run without Python.
 
 ### Install PyInstaller
 ```bash
-pip install pyinstaller```
+pip install pyinstaller
+```
 
 ### Build
 #### Linux/macOS
