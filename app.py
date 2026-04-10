@@ -100,7 +100,8 @@ class SightReadingTrainerApp:
 
     def on_note_button_clicked(self, note_name):
         self.check_answer(note_name)
-        self.show_random_pdf()
+        self.app.after(1500, self.show_random_pdf)
+
 
     def show_random_pdf(self, event=None):
         self.answered = False
