@@ -46,4 +46,4 @@ def extract_note_name(pdf_path):
 
 
 def build_pdf_file_list(all_notes):
-    return [resource_path(os.path.join("pdfs", f"{notestr}.pdf")) for notestr in all_notes]
+    return [resource_path(os.path.join("pdfs", "normal_mode", f"{notestr}.pdf")) for notestr in all_notes]

@@ -1,10 +1,12 @@
 import tkinter as tk
-from tkinter import Canvas, Label
+from tkinter import ttk
 
-from config import APP_TITLE, ALL_NOTES, NOTES_IN_OCTAVE
+from config import APP_TITLE, ALL_NOTES
 from menu import create_menu_bar
 from pdf_utils import render_pdf, build_pdf_file_list
 from quiz_logic import load_random_question, is_correct_answer
+from modes.standard_mode import StandardModeFrame
+from modes.keys_mode import KeysModeFrame
 
 
 class SightReadingTrainerApp:
@@ -32,78 +34,85 @@ class SightReadingTrainerApp:
         )
 
     def _build_widgets(self):
-        self.button_frame = tk.Frame(self.app)
-        self.button_frame.pack(pady=5)
+        self.notebook = ttk.Notebook(self.app)
+        self.notebook.pack(fill=tk.BOTH, expand=True)
 
-        for note_group in NOTES_IN_OCTAVE:
-            group_frame = tk.Frame(self.button_frame)
-            group_frame.pack(side=tk.LEFT, padx=2)
-
-            for note in note_group:
-                button = tk.Button(
-                    group_frame,
-                    text=note,
-                    width=4,
-                    command=lambda n=note: self.on_note_button_clicked(n)
-                )
-                button.pack()
-
-        self.canvas = Canvas(self.app, bg="white")
-        self.canvas.pack(fill=tk.BOTH, expand=True)
-
-        self.random_button = tk.Button(
-            self.app,
-            text="Show Random PDF",
-            command=self.show_random_pdf
+        self.standard_mode = StandardModeFrame(
+            self.notebook,
+            on_note_click=self.on_note_button_clicked,
+            on_show_random_pdf=self.show_random_pdf
         )
-        self.random_button.pack()
 
-        self.answer_label = Label(self.app, text="", wraplength=600, justify="center")
-        self.answer_label.pack(pady=10)
+        self.keys_mode = KeysModeFrame(
+            self.notebook,
+            on_note_click=self.on_note_button_clicked,
+            on_show_random_pdf=self.show_random_pdf
+        )
 
-        self.feedback_label = Label(self.app, text="", font=("Arial", 14))
-        self.feedback_label.pack(pady=5)
+        self.notebook.add(self.standard_mode, text="Free Mode")
+        self.notebook.add(self.keys_mode, text="Key Mode")
 
     def _bind_events(self):
         self.app.bind("<Configure>", self.on_resize)
         self.app.bind_all("<space>", self.show_random_pdf)
+        self.notebook.bind("<<NotebookTabChanged>>", self.on_tab_changed)
+
+    def get_active_mode_frame(self):
+        current_tab_id = self.notebook.select()
+        return self.notebook.nametowidget(current_tab_id)
 
     def on_resize(self, event):
         if self.current_pdf is None:
             return
-        render_pdf(self.canvas, self.current_pdf)
+
+        active_frame = self.get_active_mode_frame()
+        render_pdf(active_frame.canvas, self.current_pdf)
+
+
+    def on_tab_changed(self, event):
+        self.app.focus_set()
+
 
     def show_answer(self):
-        if self.current_answer is not None:
-            self.answer_label.config(text=self.current_answer)
+        if self.current_answer is None:
+            return
+
+        active_frame = self.get_active_mode_frame()
+        active_frame.answer_label.config(text=self.current_answer)
 
     def show_about(self):
-        self.feedback_label.config(text=APP_TITLE)
+        active_frame = self.get_active_mode_frame()
+        active_frame.feedback_label.config(text=APP_TITLE)
 
     def check_answer(self, user_answer):
         if self.current_answer is None or self.answered:
             return
 
         self.answered = True
+        active_frame = self.get_active_mode_frame()
 
         if is_correct_answer(user_answer, self.current_answer):
-            self.feedback_label.config(text="Correct ✅")
+            active_frame.feedback_label.config(text="Correct ✅")
         else:
-            self.feedback_label.config(
+            active_frame.feedback_label.config(
                 text=f"Incorrect ❌ (Correct: {self.current_answer})"
             )
 
     def on_note_button_clicked(self, note_name):
         self.check_answer(note_name)
+        self.show_random_pdf()
 
     def show_random_pdf(self, event=None):
         self.answered = False
 
         _, self.current_pdf, self.current_answer = load_random_question(self.pdf_files)
 
-        render_pdf(self.canvas, self.current_pdf)
-        self.answer_label.config(text="")
-        self.feedback_label.config(text="")
+        for frame in (self.standard_mode, self.keys_mode):
+            render_pdf(frame.canvas, self.current_pdf)
+            frame.answer_label.config(text="")
+            frame.feedback_label.config(text="")
+
+        self.app.focus_set()
 
     def run(self):
         self.app.mainloop()
