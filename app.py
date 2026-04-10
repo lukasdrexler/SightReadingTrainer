@@ -24,6 +24,8 @@ class SightReadingTrainerApp:
         self._build_widgets()
         self._bind_events()
 
+        self.next_question_job = None
+
     def _build_menu(self):
         self.menu_bar = create_menu_bar(
             root=self.app,
@@ -72,6 +74,15 @@ class SightReadingTrainerApp:
     def on_tab_changed(self, event):
         self.app.focus_set()
 
+    def schedule_next_question(self):
+        if self.next_question_job is not None:
+            self.app.after_cancel(self.next_question_job)
+
+        self.next_question_job = self.app.after(2000, self.delayed_show_random_pdf)
+
+    def delayed_show_random_pdf(self):
+        self.next_question_job = None
+        self.show_random_pdf()
 
     def show_answer(self):
         if self.current_answer is None:
@@ -98,12 +109,19 @@ class SightReadingTrainerApp:
                 text=f"Incorrect ❌ (Correct: {self.current_answer})"
             )
 
+        self.schedule_next_question()
+
     def on_note_button_clicked(self, note_name):
         self.check_answer(note_name)
-        self.app.after(1500, self.show_random_pdf)
+
 
 
     def show_random_pdf(self, event=None):
+
+        if self.next_question_job is not None:
+            self.app.after_cancel(self.next_question_job)
+            self.next_question_job = None
+
         self.answered = False
 
         _, self.current_pdf, self.current_answer = load_random_question(self.pdf_files)
