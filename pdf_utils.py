@@ -3,6 +3,7 @@ import sys
 
 import fitz
 from PIL import Image, ImageTk
+from matplotlib.style.core import available
 
 
 def resource_path(relative_path):
@@ -15,6 +16,7 @@ def resource_path(relative_path):
 
 
 def render_pdf(canvas, pdf_document):
+    margin = 20
     if pdf_document is None:
         return
 
@@ -23,13 +25,16 @@ def render_pdf(canvas, pdf_document):
     canvas_width = canvas.winfo_width()
     canvas_height = canvas.winfo_height()
 
+    available_width = canvas_width - margin * 2
+    available_height = canvas_height - margin * 2
+
     page = pdf_document[0]
 
     pdf_width = page.rect.width
     pdf_height = page.rect.height
 
-    scale_x = canvas_width / pdf_width
-    scale_y = canvas_height / pdf_height
+    scale_x = available_width / pdf_width
+    scale_y = available_height / pdf_height
     scale = min(scale_x, scale_y)
 
     pix = page.get_pixmap(matrix=fitz.Matrix(scale, scale))
@@ -37,7 +42,12 @@ def render_pdf(canvas, pdf_document):
     img = ImageTk.PhotoImage(image=img)
 
     canvas.image = img
-    canvas.create_image(0, 0, anchor="nw", image=img)
+    canvas.create_image(
+        canvas_width // 2,
+        canvas_height // 2,
+        anchor="center",
+        image=img
+    )
 
 
 def extract_note_name(pdf_path):
